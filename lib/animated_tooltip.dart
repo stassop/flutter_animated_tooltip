@@ -73,7 +73,7 @@ class TooltipArrow extends StatelessWidget {
 // A tooltip with text, action buttons, and an arrow pointing to the target.
 class AnimatedTooltip extends StatefulWidget {
   final Widget content;
-  final GlobalKey? target;
+  final GlobalKey? targetGlobalKey;
   final Duration? delay;
   final ThemeData? theme;
   final Widget? child;
@@ -81,11 +81,11 @@ class AnimatedTooltip extends StatefulWidget {
   const AnimatedTooltip({
     super.key,
     required this.content,
-    this.target,
+    this.targetGlobalKey,
     this.theme,
     this.delay,
     this.child,
-  }) : assert(child != null || target != null);
+  }) : assert(child != null || targetGlobalKey != null);
 
   @override
   State<StatefulWidget> createState() => AnimatedTooltipState();
@@ -113,7 +113,7 @@ class AnimatedTooltipState extends State<AnimatedTooltip> with SingleTickerProvi
     curve: Curves.easeOutBack,
   );
 
-  _toggle() {
+  void _toggle() {
     _delayTimer?.cancel();
     _animationController.stop();
     if (_overlayController.isShowing) {
@@ -127,15 +127,16 @@ class AnimatedTooltipState extends State<AnimatedTooltip> with SingleTickerProvi
     }
   }
 
-  _updatePosition() {
+  void _updatePosition() {
     final Size contextSize = MediaQuery.of(context).size;
-    final BuildContext? targetContext = widget.target != null
-      ? widget.target!.currentContext
+    final BuildContext? targetContext = widget.targetGlobalKey != null
+      ? widget.targetGlobalKey!.currentContext
       : context;
     final targetRenderBox = targetContext?.findRenderObject() as RenderBox;
     final targetOffset = targetRenderBox.localToGlobal(Offset.zero);
     final targetSize = targetRenderBox.size;
-    // Try to position the tooltip above the target, otherwise try to position it below or in the middle.
+    // Try to position the tooltip above the target, 
+    // otherwise try to position it below or in the center of the target.
     final tooltipFitsAboveTarget = targetOffset.dy - _tooltipMinimumHeight >= 0;
     final tooltipFitsBelowTarget = targetOffset.dy + targetSize.height + _tooltipMinimumHeight <= contextSize.height;
     _tooltipTop = tooltipFitsAboveTarget
@@ -148,18 +149,19 @@ class AnimatedTooltipState extends State<AnimatedTooltip> with SingleTickerProvi
         : tooltipFitsBelowTarget
             ? null
             : targetOffset.dy + targetSize.height / 2;
+    // If the tooltip is below the target, invert the arrow.
     _isInverted = _tooltipTop != null;
-    // Align the tooltip relative to the target.
+    // Align the tooltip horizontally relative to the target.
     _tooltipAlignment = Alignment(
       (targetOffset.dx) / (contextSize.width - targetSize.width) * 2 - 1.0,
       _isInverted ? 1.0 : -1.0,
     );
-    // Make the tooltip appear from the point of the arrow.
+    // Make the tooltip appear from the target.
     _transitionAlignment = Alignment(
       (targetOffset.dx + targetSize.width / 2) / contextSize.width * 2 - 1.0,
       _isInverted ? -1.0 : 1.0,
     );
-    // Center the arrow on the target.
+    // Center the arrow horizontally on the target.
     _arrowAlignment = Alignment(
       (targetOffset.dx + targetSize.width / 2) / (contextSize.width - _arrowSize.width) * 2 - 1.0,
       _isInverted ? 1.0 : -1.0,
@@ -185,6 +187,8 @@ class AnimatedTooltipState extends State<AnimatedTooltip> with SingleTickerProvi
 
   @override
   Widget build(BuildContext context) {
+    // If no theme is provided, 
+    // use the opposite brightness of the current theme to make the tooltip stand out.
     final theme = widget.theme ?? ThemeData(
       useMaterial3: true,
       brightness: Theme.of(context).brightness == Brightness.light
@@ -201,15 +205,19 @@ class AnimatedTooltipState extends State<AnimatedTooltip> with SingleTickerProvi
         return Positioned(
           top: _tooltipTop,
           bottom: _tooltipBottom,
+          // Provide a transition alignment to make the tooltip appear from the target.
           child: ScaleTransition(
             alignment: _transitionAlignment,
             scale: _scaleAnimation,
+            // TapRegion allows the tooltip to be dismissed by tapping outside of it.
             child: TapRegion(
               onTapOutside: (PointerDownEvent event) {
                 _toggle();
               },
+              // If no theme is provided, a theme with inverted brightness is used.
               child: Theme(
                 data: theme,
+                // Don't allow the tooltip to get wider than the screen.
                 child: SizedBox(
                   width: MediaQuery.of(context).size.width,
                   child: Column(
