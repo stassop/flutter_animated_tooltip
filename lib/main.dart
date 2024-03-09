@@ -31,14 +31,14 @@ class MyApp extends StatelessWidget {
                   Align(
                     alignment: Alignment.centerLeft,
                     child: AnimatedTooltip(
-                      message: 'This is an inverted tooltip.',
+                      content: Text('This is an inverted tooltip.'),
                       child: Icon(Icons.info),
                     ),
                   ),
                   Expanded(
                     child: Center(
                       child: AnimatedTooltip(
-                        message: 'This is a centered tooltip.',
+                        content: Text('This is a centered tooltip.'),
                         child: Icon(Icons.info),
                       ),
                     ),
@@ -46,7 +46,7 @@ class MyApp extends StatelessWidget {
                   Align(
                     alignment: Alignment.centerRight,
                     child: AnimatedTooltip(
-                      message: 'This is a right-aligned tooltip.',
+                      content: Text('This is a right-aligned tooltip.'),
                       child: Icon(Icons.info),
                     ),
                   ),

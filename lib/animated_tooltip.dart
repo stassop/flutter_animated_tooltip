@@ -72,7 +72,7 @@ class TooltipArrow extends StatelessWidget {
 
 // A tooltip with text, action buttons, and an arrow pointing to the target.
 class AnimatedTooltip extends StatefulWidget {
-  final String message;
+  final Widget content;
   final GlobalKey? target;
   final Duration? delay;
   final ThemeData? theme;
@@ -80,7 +80,7 @@ class AnimatedTooltip extends StatefulWidget {
 
   const AnimatedTooltip({
     super.key,
-    required this.message,
+    required this.content,
     this.target,
     this.theme,
     this.delay,
@@ -235,7 +235,7 @@ class AnimatedTooltipState extends State<AnimatedTooltip> with SingleTickerProvi
                               padding: const EdgeInsets.all(16.0),
                               child: Column(
                                 children: [
-                                  Text(widget.message),
+                                  widget.content,
                                   const SizedBox(height: 16.0),
                                   Align(
                                     alignment: Alignment.centerRight,
