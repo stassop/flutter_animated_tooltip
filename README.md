@@ -19,7 +19,7 @@ To display the tooltip above the rest of the UI we use an [Overlay](https://api.
 Thanks to Flutter’s extensive widget library, most of the essential components are already there, minimising the need for custom work. There’s only four things we need to calculate ourselves:
 
 * The vertical position of the tooltip relative to the target
-* The horizontal alignment of the toolkit relative to the target
+* The horizontal alignment of the tooltip relative to the target
 * The horizontal alignment of the arrow relative to the target
 * The alignment (origin point) of the animation
 
