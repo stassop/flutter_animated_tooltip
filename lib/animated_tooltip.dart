@@ -172,8 +172,9 @@ class AnimatedTooltipState extends State<AnimatedTooltip> with SingleTickerProvi
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
+      // If the tooltip is delayed, start a timer to show it.
       if (widget.delay != null) {
-        _toggle();
+        _delayTimer = Timer(widget.delay!, _toggle);
       }
     });
   }
